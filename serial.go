@@ -23,9 +23,9 @@ func connection() {
 	var err error
 	fmt.Println("Connection....")
 	config := &serial.Config{
-		Name: device,
-		Baud: 115200,
-		//	ReadTimeout: time.Second,
+		Name:        device,
+		Baud:        115200,
+		ReadTimeout: time.Second,
 	}
 	fmt.Println(config.Name)
 	stream, err = serial.OpenPort(config)
@@ -39,18 +39,25 @@ func readPort() { // read stream
 	readBuff := make([]byte, 128)
 	for {
 		index++
+		time.Sleep(time.Second)
+
 		n, _ := stream.Read(readBuff)
 		etat := string(readBuff[:n])
 		log.Println(etat, "index : ", index)
+		if n == 0 {
+			break
+		}
 
-		reg := regexp.MustCompile(`<(^\s)>`) // catch result of "?"
+		reg := regexp.MustCompile(`<(.*)>`) // catch result of "?"
 		r := reg.Find([]byte(etat))
+		fmt.Printf("r: %v\n", r)
 		if r != nil {
 			infoMachine = strings.Split(string(r), "|")
 		}
 
 		regOk := regexp.MustCompile(`ok`) // catch "ok" and ajust RX []
 		rOk := regOk.FindAll([]byte(etat), -1)
+		fmt.Printf("rOk: %v\n", rOk)
 		if rOk != nil {
 			bufferRx = bufferRx[len(rOk):]
 			log.Println(totalBuffer)
@@ -74,6 +81,7 @@ func writeOnPort(s string) {
 		label.SetText(label.Text() + s + "\n")
 		label.Refresh()
 		scrollText.ScrollToBottom()
+		go readPort()
 	} else {
 		time.Sleep(time.Second / 2) // delay before recall
 		writeOnPort(s)
@@ -86,7 +94,7 @@ func startGRBL() {
 	time.Sleep(time.Second * 2)
 	stream.Flush()
 	log.Println("Start reading...")
-	go readPort()
+	//	go readPort()
 
 }
 
