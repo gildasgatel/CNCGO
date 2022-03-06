@@ -2,7 +2,6 @@ package main
 
 import (
 	"image/color"
-	"log"
 	"regexp"
 	"strconv"
 	"time"
@@ -17,11 +16,18 @@ var (
 	STATUS_CNC  string
 )
 
+func etatTime() {
+	go func() {
+		for {
+			writeOnPort("?")
+			time.Sleep(time.Second * 2)
+		}
+	}()
+}
+
 func stateCNC() {
 	rg := regexp.MustCompile(`\d.?.?`)
-	writeOnPort("?")
 	infoState.SetText("")
-	//fmt.Println(infoMachine)
 	if infoMachine != nil {
 		for _, v := range infoMachine {
 			infoState.SetText(infoState.Text() + " " + v)
@@ -54,10 +60,9 @@ func play() {
 
 	for fileScanner.Scan() {
 		for STATUS_CNC == "Hold" {
-			time.Sleep(time.Second)
-			log.Println("Wait....")
+			time.Sleep(time.Microsecond)
+			//log.Println("Wait....")
 			if STATUS_CNC == "Idle" || STATUS_CNC == "Run" {
-				stateCNC()
 				break
 			}
 		}

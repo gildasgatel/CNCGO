@@ -4,7 +4,7 @@
 
 2 recevoir l'état de la machine et afficher le résulat //ok
 
-2.1 extraire tout les "ok" et "info machine" retournés par la CNC  //  ***  IMPORTANT *** /// 
+2.1 extraire tout les "ok" et "info machine" retournés par la CNC  //  ok
 
 3 envoyer une commande GCODE par un input et recevoir la confirmation # déplacement //ok
 

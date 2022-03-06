@@ -60,15 +60,16 @@ func listenedStream() {
 func readStream() {
 	fmt.Println("Read started")
 	rg := regexp.MustCompile(`ok`)
+	rg2 := regexp.MustCompile(`<(.*?)>`)
 	go func() {
 		for {
 			result := <-chanStream
-			if len(result) > 0 {
-				log.Println(result)
-			}
-			if len(result) > 0 && result[0] == '<' {
+
+			r2 := rg2.FindString(result)
+			if len(r2) > 0 {
 				fmt.Println("Etat trouvé")
-				infoMachine = strings.Split(string(result), "|")
+				infoMachine = strings.Split(result, "|")
+				stateCNC()
 			}
 			r := rg.FindAllString(string(result), -1)
 			if r != nil {
@@ -91,6 +92,7 @@ func writeOnPort(s string) {
 		stream.Write([]byte(s + "\n"))
 	} else {
 		time.Sleep(time.Millisecond)
+		//stream.Write([]byte(""))
 		writeOnPort(s)
 	}
 
@@ -103,6 +105,8 @@ func startGRBL() {
 	log.Println("Start reading...")
 	listenedStream()
 	readStream()
+	etatTime()
+
 }
 
 func autoSelecDevice() (dev []string) {

@@ -108,7 +108,6 @@ func mainScreen() {
 	})
 	btnP2 := widget.NewButton("Start", func() {
 		go play()
-		//stateCNC()
 	})
 	btnP1 := widget.NewButton("Set X0 Y0 Z0", func() {
 
@@ -127,7 +126,7 @@ func mainScreen() {
 		}, w)
 	})
 	btnEtat := widget.NewButton("etat", func() {
-		stateCNC()
+		go writeOnPort("?")
 	})
 	btnFeedP := widget.NewButton("Speed +10", func() {
 		speedPlus = true
@@ -142,12 +141,10 @@ func mainScreen() {
 		changeSpeed = true
 	})
 	btnPlay := widget.NewButton("Reprendre", func() {
-		writeOnPort("~")
-		// stateCNC()
+		go writeOnPort("~")
 	})
 	btnPause := widget.NewButton("Pause", func() {
-		writeOnPort("!")
-		//stateCNC()
+		go writeOnPort("!")
 	})
 
 	btnOrigine := widget.NewButton("Go X0 Y0 Z0", func() {
