@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,73 +18,79 @@ var (
 	infoMachine []string
 	bufferRx    []int
 	totalBuffer int // Max 128
+	chanStream  chan string
 )
 
 func connection() {
-	var err error
+
 	fmt.Println("Connection....")
 	config := &serial.Config{
 		Name:        device,
 		Baud:        115200,
-		ReadTimeout: time.Second,
+		ReadTimeout: time.Millisecond,
 	}
 	fmt.Println(config.Name)
-	stream, err = serial.OpenPort(config)
-	if err != nil {
-		log.Fatal(err)
-	}
+	stream, _ = serial.OpenPort(config)
 	log.Println("...connecter")
+
 }
-func readPort() { // read stream
-	index := 0
-	readBuff := make([]byte, 128)
-	for {
-		index++
-		time.Sleep(time.Second)
 
-		n, _ := stream.Read(readBuff)
-		etat := string(readBuff[:n])
-		log.Println(etat, "index : ", index)
-		if n == 0 {
-			break
+func listenedStream() {
+	chanStream = make(chan string)
+	fmt.Println("Listend started")
+	buff := make([]byte, 128)
+	result := ""
+	go func() {
+		for {
+			for {
+				n, err := stream.Read(buff)
+				result += string(buff[:n])
+				if err != nil && len(result) > 0 {
+					fmt.Println(result)
+					break
+				}
+			}
+			chanStream <- result
+			result = ""
 		}
+	}()
 
-		reg := regexp.MustCompile(`<(.*)>`) // catch result of "?"
-		r := reg.Find([]byte(etat))
-		fmt.Printf("r: %v\n", r)
-		if r != nil {
-			infoMachine = strings.Split(string(r), "|")
+}
+
+func readStream() {
+	fmt.Println("Read started")
+	rg := regexp.MustCompile(`ok`)
+	go func() {
+		for {
+			result := <-chanStream
+			if len(result) > 0 {
+				log.Println(result)
+			}
+			if len(result) > 0 && result[0] == '<' {
+				fmt.Println("Etat trouvé")
+				infoMachine = strings.Split(string(result), "|")
+			}
+			r := rg.FindAllString(string(result), -1)
+			if r != nil {
+				bufferRx = bufferRx[len(r):]
+				screenBuff.Text = "buffer : " + strconv.Itoa(totalBuffer)
+				screenBuff.Refresh()
+			}
 		}
-
-		regOk := regexp.MustCompile(`ok`) // catch "ok" and ajust RX []
-		rOk := regOk.FindAll([]byte(etat), -1)
-		fmt.Printf("rOk: %v\n", rOk)
-		if rOk != nil {
-			bufferRx = bufferRx[len(rOk):]
-			log.Println(totalBuffer)
-		} /* else {
-			bufferRx = bufferRx[1:]
-		}*/
-	}
+	}()
 }
 
 func writeOnPort(s string) {
 
-	fmt.Println("Write...")
-	totalBuffer = 0              // init RX count
-	for _, v := range bufferRx { // Add sum of RX []
+	totalBuffer = 0
+	for _, v := range bufferRx {
 		totalBuffer += v
 	}
-	if totalBuffer+len(s+"\n") < 128 { // Rx MAX 128
-		bufferRx = append(bufferRx, len(s+"\n")) // Add sum in bufferRx
+	if totalBuffer+len(s+"\n") < 128 {
+		bufferRx = append(bufferRx, len(s+"\n"))
 		stream.Write([]byte(s + "\n"))
-		log.Printf("s: %v\n", s)
-		label.SetText(label.Text() + s + "\n")
-		label.Refresh()
-		scrollText.ScrollToBottom()
-		go readPort()
 	} else {
-		time.Sleep(time.Second / 2) // delay before recall
+		time.Sleep(time.Millisecond)
 		writeOnPort(s)
 	}
 
@@ -94,8 +101,8 @@ func startGRBL() {
 	time.Sleep(time.Second * 2)
 	stream.Flush()
 	log.Println("Start reading...")
-	//	go readPort()
-
+	listenedStream()
+	readStream()
 }
 
 func autoSelecDevice() (dev []string) {

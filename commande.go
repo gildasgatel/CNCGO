@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 	"log"
 	"regexp"
@@ -19,9 +18,10 @@ var (
 )
 
 func stateCNC() {
+	rg := regexp.MustCompile(`\d.?.?`)
 	writeOnPort("?")
 	infoState.SetText("")
-	fmt.Println(infoMachine)
+	//fmt.Println(infoMachine)
 	if infoMachine != nil {
 		for _, v := range infoMachine {
 			infoState.SetText(infoState.Text() + " " + v)
@@ -40,12 +40,9 @@ func stateCNC() {
 		stateRec.Refresh()
 	}
 	if len(infoMachine) > 2 {
-		rg := regexp.MustCompile(`\d.?.?`)
 		s := rg.FindAllString(infoMachine[2], -1)
 		if len(s) == 2 {
-			//	screenBuff.Text = "Buffer :" + s[0]
 			screenPlanner.Text = "Pannel :" + s[1]
-			//	screenBuff.Refresh()
 			screenPlanner.Refresh()
 		}
 
@@ -53,6 +50,7 @@ func stateCNC() {
 	infoState.Refresh()
 }
 func play() {
+	rg := regexp.MustCompile("F.*")
 
 	for fileScanner.Scan() {
 		for STATUS_CNC == "Hold" {
@@ -63,9 +61,7 @@ func play() {
 				break
 			}
 		}
-		fmt.Printf("STATUS_CNC: %v\n", STATUS_CNC)
 		gcode := fileScanner.Text()
-		rg := regexp.MustCompile("F.*")
 		s := rg.FindIndex([]byte(gcode))
 		if len(s) > 0 {
 			s[0] = s[0] + 1
@@ -83,16 +79,12 @@ func play() {
 				speedReset = false
 			}
 			screenSpeed.Text = "Speed : " + strconv.Itoa(pannel)
-			screenBuff.Text = " RX :" + strconv.Itoa(totalBuffer) + " lenght RX :" + strconv.Itoa(len(bufferRx))
-			screenBuff.Refresh()
 			screenSpeed.Refresh()
 			gcode = gcode[:s[0]] + strconv.Itoa(pannel)
 
 		}
 		writeOnPort(gcode)
-		/*	if len(bufferRx) < 4 {
-			//stateCNC()
-		}*/
+
 	}
 	fileGCode.Close()
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"image/color"
-	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -109,7 +108,6 @@ func mainScreen() {
 	})
 	btnP2 := widget.NewButton("Start", func() {
 		go play()
-		time.Sleep(time.Second * 2)
 		//stateCNC()
 	})
 	btnP1 := widget.NewButton("Set X0 Y0 Z0", func() {
@@ -145,11 +143,11 @@ func mainScreen() {
 	})
 	btnPlay := widget.NewButton("Reprendre", func() {
 		writeOnPort("~")
-		stateCNC()
+		// stateCNC()
 	})
 	btnPause := widget.NewButton("Pause", func() {
 		writeOnPort("!")
-		stateCNC()
+		//stateCNC()
 	})
 
 	btnOrigine := widget.NewButton("Go X0 Y0 Z0", func() {
