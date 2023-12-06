@@ -1,0 +1,59 @@
+Étape du projet
+
+1 créer une liaison avec la CNC # serie  // ok 
+
+2 recevoir l'état de la machine et afficher le résulat //ok
+
+2.1 extraire tout les "ok" et "info machine" retournés par la CNC  //  ok
+
+3 envoyer une commande GCODE par un input et recevoir la confirmation # déplacement //ok
+
+4 charger un  pointeur fichier .nc depuis le pc //ok
+
+4.1 envoyer le fichier et l'executer correctement //ok
+
+5 modifier l'envoie du fichier en cours d'exécution 
+        - pause / play     // ok
+        - vitesse de déplacement  // ok
+        - reprise après coupure
+        - vitesse de la broche 
+
+6 réaliser un GUI avec les fonctionnalités
+
+7 ajouter et modifier des options
+
+
+* * * * * * *
+
+serie
+- connection //ok
+- état   
+- reception
+- envoie  // ok
+- déconnection  
+
+* * * * * * * * 
+
+GUI
+- Commande
+    - bouton de déplacement
+        - X Y 
+        - jauge de precision
+        - Z
+        - Jauge de precision
+    - reset WO
+    - Go Origine
+    - état position travail
+    - état position machine
+- liaison
+    - selection
+    - connection
+    - console
+        - état
+        - saisie
+- Programme
+    - ouvrir fichier
+    - afficher fichier
+    - barre de progression d'usinage
+    - bouton play / pause
+
