@@ -1,6 +1,7 @@
 # CNCGO
  est une API permettant d'envoyer des instructions aux machines à commande numérique (CNC) utilisant le firmware GRBL. La communiquation avec la machine ce fait en USB et le programme est en charge de convertir les commandes utilisateur en langage machine GCode.
 
+![This is an image](https://github.com/gildasgatel/CNCGO/_data_/cncgo.jpg)
 
  Endpoint
  * GET("/state")
