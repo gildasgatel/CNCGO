@@ -1,6 +1,5 @@
 cahier des charges
 
-Front
     fonction:
         - connexion 
             -> machine, liaison 
