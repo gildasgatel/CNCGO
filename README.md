@@ -3,7 +3,6 @@
 
 ![This is an image](https://github.com/gildasgatel/CNCGO/_data_/cncgo.jpg)
 
-
  Endpoint
  * GET("/state")
  * POST("/config")
