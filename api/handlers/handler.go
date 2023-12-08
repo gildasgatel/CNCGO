@@ -3,6 +3,7 @@ package handlers
 import (
 	"cncgo/api/models"
 	"cncgo/pkg/connection"
+	mockConnection "cncgo/pkg/connection/mock"
 	"cncgo/pkg/connection/usb"
 	"cncgo/pkg/machine"
 	"cncgo/pkg/machine/grbl"
@@ -49,9 +50,9 @@ func (ch *CncHandler) configConnexion(c *gin.Context) {
 func (ch *CncHandler) initConnection(conf *models.Config) (err error) {
 	switch conf.Connection {
 	case "usb":
-		if ch.connection, err = usb.New(conf); err != nil {
-			return
-		}
+		ch.connection, err = usb.New(conf)
+	case "test":
+		ch.connection = &mockConnection.MockService{}
 	default:
 		//todo add error
 	}
@@ -84,7 +85,7 @@ func (ch *CncHandler) handelCommand(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"message": string(resp)})
 		}
 	} else {
-		c.String(http.StatusBadRequest, "Need to setup your config, /config")
+		ch.errorConfig(c)
 	}
 
 }
@@ -104,11 +105,15 @@ func (ch *CncHandler) handelFile(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"message": "SendFile stop"})
 		}
 	} else {
-		c.String(http.StatusBadRequest, "Need to setup your config, /config")
+		ch.errorConfig(c)
 	}
 
 }
 
 func (ch *CncHandler) Close() {
 	ch.connection.Close()
+}
+
+func (ch *CncHandler) errorConfig(c *gin.Context) {
+	c.JSON(http.StatusBadRequest, gin.H{"message": "Need to setup your config, /config"})
 }
